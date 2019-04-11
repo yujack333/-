@@ -65,7 +65,46 @@
   t1 = task1()
   t2 = task2()
   ```
-  @perporty
+  
+装饰器的一个缺点就是原函数的元信息不见了，比如函数的docstring、__name__。这是应为返回的不再是原函数，而是wapper函数。
+```python
+  def use_logging(func):
+    def _deco(*args,**kwargs):
+      print("%s is running" % func.__name__)
+      func(*args,**kwargs)
+    return _deco
+  @use_logging
+  def bar():
+    print('i am bar')
+    print(bar.__name__)
+  bar()
+  #bar is running
+  #i am bar
+  #_deco
+  #函数名变为_deco而不是bar，这个情况在使用反射的特性的时候就会造成问题。因此引入了functools.wraps解决这个问题。
+```
+解决办法：
+
+```python
+  import functools
+  def use_logging(func):
+    @functools.wraps(func)
+    def _deco(*args,**kwargs):
+      print("%s is running" % func.__name__)
+      func(*args,**kwargs)
+    return _deco
+  @use_logging
+  def bar():
+    print('i am bar')
+    print(bar.__name__)
+  bar()
+  #result:
+  #bar is running
+  #i am bar
+  #bar ,这个结果是我们想要的。OK啦！
+```
+
+@perporty
 
 1.将成员函数变为属性
 
